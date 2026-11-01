@@ -44,7 +44,7 @@ function igPage() {
     '<button type="button" id="ig" class="b">Скопіювати й відкрити Instagram</button><div id="note"></div>';
   document.getElementById('manual').value = text;
   document.getElementById('ig').onclick = function () {
-    var m = document.getElementById('manual'), go = function () { document.getElementById('note').textContent = 'Текст скопійовано. Зараз відкриється Instagram: вставте текст у чат і надішліть.'; setTimeout(function () { location.href = IG; }, 3000); };
+    var m = document.getElementById('manual'), go = function () { document.getElementById('note').textContent = 'Текст скопійовано'; location.href = IG; };
     var old = function () { m.focus(); m.select(); m.setSelectionRange(0, text.length); var ok = false; try { ok = document.execCommand('copy'); } catch (e) {} if (ok) go(); else document.getElementById('note').textContent = 'Не вдалося скопіювати: виділіть текст вручну, а потім відкрийте Instagram'; };
     if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(go, old); else old();
   };
