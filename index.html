@@ -20,6 +20,7 @@ select{width:100%;border-radius:8px;padding:0 8px}
 .q button:first-child{border-radius:8px 0 0 8px}
 .q button:last-child{border-radius:0 8px 8px 0}
 .q output{flex:1;min-width:44px;display:grid;place-items:center;border-width:1px 0}
+.one{height:44px;display:flex;align-items:center;padding:0 8px;border:1px solid var(--line);border-radius:8px}
 #go{display:block;text-align:center;text-decoration:none;background:var(--btn);color:var(--btn-fg);border-radius:8px;padding:12px;font-weight:600}
 #err{color:var(--muted)}
 </style>
@@ -28,18 +29,18 @@ select{width:100%;border-radius:8px;padding:0 8px}
 <div id="w"></div>
 <script src="products.js"></script>
 <script>
-var art = new URLSearchParams(location.search).get('art');
-var p = window.PRODUCTS && PRODUCTS[art];
+var q = new URLSearchParams(location.search);
+var p = window.PRODUCTS && PRODUCTS[q.get('p')];
 var w = document.getElementById('w');
 if (!p) {
   w.innerHTML = '<div id="err">Товар не знайдено. Напишіть нам у Telegram: @no_waves_ua</div>';
 } else {
-  var opts = p.options.map(function (o, i) {
-    return '<option value="' + i + '">' + o.label + '</option>';
-  }).join('');
+  var o = p.o || [], name = p.l || 'Обʼєм', pick;
+  if (o.length > 1) pick = '<select id="v">' + o.map(function (x) { return '<option>' + x + '</option>'; }).join('') + '</select>';
+  else if (o.length === 1) pick = '<div class="one">' + o[0] + '</div>';
   w.innerHTML =
     '<div class="row">' +
-      '<div class="f"><label for="v">' + (p.optionName || 'Обʼєм') + '</label><select id="v">' + opts + '</select></div>' +
+      (pick ? '<div class="f"><span class="l">' + name + '</span>' + pick + '</div>' : '') +
       '<div class="f"><span class="l">Кількість</span><div class="q">' +
         '<button type="button" id="m" aria-label="Менше">−</button><output id="c">1</output>' +
         '<button type="button" id="a" aria-label="Більше">+</button></div></div>' +
@@ -47,12 +48,12 @@ if (!p) {
     '<a id="go" target="_blank" rel="noopener">Замовити в Telegram</a>';
   var qty = 1, v = document.getElementById('v');
   var render = function () {
-    var o = p.options[+v.value];
+    var size = v ? v.value : o[0];
     document.getElementById('c').textContent = qty;
-    var text = 'Хочу замовити: ' + p.name + ' (' + art + '), ' + o.label + ' × ' + qty + ' шт.';
+    var text = 'Хочу замовити: ' + p.n + ' (' + p.a + ')' + (size ? ', ' + size : '') + ' × ' + qty + ' шт.';
     document.getElementById('go').href = 'https://t.me/no_waves_ua?text=' + encodeURIComponent(text);
   };
-  v.onchange = render;
+  if (v) v.onchange = render;
   document.getElementById('m').onclick = function () { if (qty > 1) { qty--; render(); } };
   document.getElementById('a').onclick = function () { if (qty < 99) { qty++; render(); } };
   render();
