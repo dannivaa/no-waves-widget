@@ -26,6 +26,8 @@ select{width:100%;border-radius:8px;padding:0 8px}
 #ig{background:#c13584;font-weight:600}
 #err{color:var(--muted)}
 #note{font-size:13px;color:var(--muted)}
+body.page{min-height:100vh;display:grid;place-items:center;padding:16px}
+body.page #w{width:100%;max-width:480px;padding:0}
 #manual{display:block;width:100%;margin-top:4px;font:inherit;color:var(--fg);background:transparent;border:1px solid var(--line);border-radius:8px;padding:6px}
 </style>
 </head>
@@ -37,9 +39,10 @@ var q = new URLSearchParams(location.search);
 var IG = 'https://ig.me/m/no.waves.ua';
 // Instagram has no prefilled text. The embed cannot reach the clipboard, so this step runs in its own tab.
 function igPage() {
+  document.body.className = 'page';
   var size = q.get('s');
   var text = 'Хочу замовити: ' + p.n + '\nАртикул: ' + p.a + '\n' + (size ? (p.l || 'Обʼєм') + ': ' + size + '\n' : '') + 'Кількість: ' + q.get('q');
-  w.innerHTML = '<div class="l">Скопіюйте текст заказу й вставте його в чат Instagram</div>' +
+  w.innerHTML = '<div class="l">Скопіюйте текст замовлення й вставте його в чат Instagram</div>' +
     '<textarea id="manual" readonly rows="5"></textarea>' +
     '<button type="button" id="ig" class="b">Скопіювати й відкрити Instagram</button><div id="note"></div>';
   document.getElementById('manual').value = text;
