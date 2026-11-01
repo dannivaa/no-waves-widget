@@ -21,9 +21,9 @@ select{width:100%;border-radius:8px;padding:0 8px}
 .q button:last-child{border-radius:0 8px 8px 0}
 .q output{flex:1;min-width:44px;display:grid;place-items:center;border-width:1px 0}
 .one{height:44px;display:flex;align-items:center;padding:0 8px;border:1px solid var(--line);border-radius:8px}
-.b{display:block;text-align:center;text-decoration:none;color:#fff;border-radius:8px;padding:12px;font-weight:600}
+.b{display:block;width:100%;border:0;font:inherit;cursor:pointer;text-align:center;text-decoration:none;color:#fff;border-radius:8px;padding:12px;font-weight:600}
 #go{background:var(--btn)}
-#ig{background:#c13584}
+#ig{background:#c13584;font-weight:600}
 #err{color:var(--muted)}
 #note{font-size:13px;color:var(--muted)}
 #manual{display:block;width:100%;margin-top:4px;font:inherit;color:var(--fg);background:transparent;border:1px solid var(--line);border-radius:8px;padding:6px}
@@ -34,12 +34,28 @@ select{width:100%;border-radius:8px;padding:0 8px}
 <script src="products.js"></script>
 <script>
 var q = new URLSearchParams(location.search);
+var IG = 'https://ig.me/m/no.waves.ua';
+// Instagram has no prefilled text. The embed cannot reach the clipboard, so this step runs in its own tab.
+function igPage() {
+  var size = q.get('s');
+  var text = 'Хочу замовити: ' + p.n + '\nАртикул: ' + p.a + '\n' + (size ? (p.l || 'Обʼєм') + ': ' + size + '\n' : '') + 'Кількість: ' + q.get('q');
+  w.innerHTML = '<div class="l">Скопіюйте текст заказу й вставте його в чат Instagram</div>' +
+    '<textarea id="manual" readonly rows="5"></textarea>' +
+    '<button type="button" id="ig" class="b">Скопіювати й відкрити Instagram</button><div id="note"></div>';
+  document.getElementById('manual').value = text;
+  document.getElementById('ig').onclick = function () {
+    var m = document.getElementById('manual'), go = function () { document.getElementById('note').textContent = 'Скопійовано'; setTimeout(function () { location.href = IG; }, 500); };
+    var old = function () { m.focus(); m.select(); m.setSelectionRange(0, text.length); var ok = false; try { ok = document.execCommand('copy'); } catch (e) {} if (ok) go(); else document.getElementById('note').textContent = 'Не вдалося скопіювати: виділіть текст вручну, а потім відкрийте Instagram'; };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(go, old); else old();
+  };
+}
 var p = window.PRODUCTS && PRODUCTS[q.get('p')];
 var w = document.getElementById('w');
 if (!p) {
   w.innerHTML = '<div id="err">Товар не знайдено. Напишіть нам у Telegram: @no_waves_ua</div>';
 } else {
   var o = p.o || [], name = p.l || 'Обʼєм', pick;
+  if (q.get('ig')) igPage(); else {
   if (o.length > 1) pick = '<select id="v">' + o.map(function (x) { return '<option>' + x + '</option>'; }).join('') + '</select>';
   else if (o.length === 1) pick = '<div class="one">' + o[0] + '</div>';
   w.innerHTML =
@@ -50,35 +66,20 @@ if (!p) {
         '<button type="button" id="a" aria-label="Більше">+</button></div></div>' +
     '</div>' +
     '<a id="go" class="b" target="_blank" rel="noopener">Замовити в Telegram</a>' +
-    '<a id="ig" class="b" target="_blank" rel="noopener" href="https://ig.me/m/no.waves.ua">Замовити в Instagram</a>' +
-    '<div id="note"></div>';
+    '<a id="ig" class="b" target="_blank" rel="noopener" >Замовити в Instagram</a>';
   var qty = 1, text = '', v = document.getElementById('v'), failed = false;
   var render = function () {
     var size = v ? v.value : o[0];
     document.getElementById('c').textContent = qty;
     text = 'Хочу замовити: ' + p.n + '\nАртикул: ' + p.a + '\n' + (size ? name + ': ' + size + '\n' : '') + 'Кількість: ' + qty;
     document.getElementById('go').href = 'https://t.me/no_waves_ua?text=' + encodeURIComponent(text);
+    document.getElementById('ig').href = '?p=' + q.get('p') + '&ig=1&s=' + encodeURIComponent(size || '') + '&q=' + qty;
   };
   if (v) v.onchange = render;
   document.getElementById('m').onclick = function () { if (qty > 1) { qty--; render(); } };
   document.getElementById('a').onclick = function () { if (qty < 99) { qty++; render(); } };
   render();
-  var copy = function () {
-    var t = document.createElement('textarea'), ok = false;
-    t.value = text; t.style.position = 'fixed'; t.style.opacity = '0';
-    document.body.appendChild(t); t.select(); t.setSelectionRange(0, text.length);
-    try { ok = document.execCommand('copy'); } catch (e) {}
-    t.remove();
-    return ok;
-  };
-  document.getElementById('ig').onclick = function (e) {
-    var note = document.getElementById('note');
-    if (copy()) { note.textContent = 'Текст скопійовано, вставте його в чат'; return; }
-    if (failed) return;   // second click: the text was shown, just open the chat
-    failed = true; e.preventDefault();
-    note.innerHTML = 'Скопіюйте текст і натисніть кнопку ще раз:<textarea id="manual" readonly rows="3"></textarea>';
-    var m = document.getElementById('manual'); m.value = text; m.focus(); m.select();
-  };
+  }
 }
 </script>
 </body>
