@@ -50,7 +50,7 @@ if (!p) {
   var render = function () {
     var size = v ? v.value : o[0];
     document.getElementById('c').textContent = qty;
-    var text = 'Хочу замовити: ' + p.n + ' (' + p.a + ')\n' + (size ? name + ': ' + size + '\n' : '') + 'Кількість: ' + qty;
+    var text = 'Хочу замовити: ' + p.n + '\nАртикул: ' + p.a + '\n' + (size ? name + ': ' + size + '\n' : '') + 'Кількість: ' + qty;
     document.getElementById('go').href = 'https://t.me/no_waves_ua?text=' + encodeURIComponent(text);
   };
   if (v) v.onchange = render;
