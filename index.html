@@ -24,6 +24,12 @@ select{width:100%;border-radius:8px;padding:0 8px}
 .b{display:block;width:100%;border:0;font:inherit;cursor:pointer;text-align:center;text-decoration:none;color:#fff;border-radius:8px;padding:12px;font-weight:600}
 #go{background:var(--btn)}
 #ig{background:#c13584;font-weight:600}
+#sum{display:grid;gap:4px;font-size:14px}
+.s{display:flex;align-items:baseline;gap:6px;white-space:nowrap}
+.s .l{margin-right:auto}
+.s s{color:var(--muted);font-size:13px}
+.s b{font-weight:600}
+.s i{font-style:normal;font-weight:600;color:#c13584}
 #err{color:var(--muted)}
 #note{font-size:13px;color:var(--muted)}
 body.page{min-height:100vh;display:grid;place-items:center;padding:16px}
@@ -68,13 +74,24 @@ if (!p) {
         '<button type="button" id="m" aria-label="Менше">−</button><output id="c">1</output>' +
         '<button type="button" id="a" aria-label="Більше">+</button></div></div>' +
     '</div>' +
+    '<div id="sum"></div>' +
     '<a id="go" class="b" target="_blank" rel="noopener">Замовити в Telegram</a>' +
     '<a id="ig" class="b" target="_blank" rel="noopener" >Замовити в Instagram</a>';
   var qty = 1, text = '', v = document.getElementById('v'), failed = false;
+  var money = function (x) { return String(x).replace(/\B(?=(\d{3})+$)/g, ' '); };
+  var line = function (label, price, promo) {
+    if (!price) return '';
+    var sale = promo && promo < price, total = (sale ? promo : price) * qty;
+    return '<div class="s"><span class="l">' + label + '</span>' +
+      (sale ? '<s>' + money(price * qty) + '</s>' : '') + '<b>' + money(total) + ' грн</b>' +
+      (sale ? '<i>−' + Math.round((1 - promo / price) * 100) + '%</i>' : '') + '</div>';
+  };
   var render = function () {
     var size = v ? v.value : o[0];
     document.getElementById('c').textContent = qty;
     text = 'Хочу замовити: ' + p.n + '\nАртикул: ' + p.a + '\n' + (size ? name + ': ' + size + '\n' : '') + 'Кількість: ' + qty;
+    var pr = p.p && (p.p[size] || p.p['1 шт'] || (size ? null : p.p[Object.keys(p.p)[0]]));
+    document.getElementById('sum').innerHTML = pr ? line('Для майстра', pr[0], pr[2]) + line('Для продажу', pr[1], pr[3]) : '';
     document.getElementById('go').href = 'https://t.me/no_waves_ua?text=' + encodeURIComponent(text);
     document.getElementById('ig').href = '?p=' + q.get('p') + '&ig=1&s=' + encodeURIComponent(size || '') + '&q=' + qty;
   };
