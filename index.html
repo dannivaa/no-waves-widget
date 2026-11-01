@@ -10,8 +10,8 @@
 *{box-sizing:border-box}
 html,body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
 #w{padding:12px 2px;display:grid;gap:12px;max-width:520px}
-.row{display:grid;gap:10px}
-.f{display:grid;grid-template-columns:90px 1fr;align-items:center;gap:8px}
+.row{display:flex;gap:12px;flex-wrap:wrap}
+.f{display:grid;gap:4px;flex:1 1 150px}
 label,.l{font-size:13px;color:var(--muted)}
 select,.q button,.q output{height:44px;font:inherit;color:var(--fg);background:transparent;border:1px solid var(--line)}
 select{width:100%;border-radius:8px;padding:0 8px}
