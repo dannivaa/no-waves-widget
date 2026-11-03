@@ -61,7 +61,7 @@ var sums = function (size, qty) {
 };
 var orderText = function (size, qty) {
   return 'Хочу замовити: ' + p.n + '\nАртикул: ' + p.a + '\n' + (size ? (p.l || 'Обʼєм') + ': ' + size + '\n' : '') + 'Кількість: ' + qty +
-    sums(size, qty).map(function (x) { return '\nСума ' + x[0].toLowerCase() + ': ' + money(x[2]) + ' грн' + (x[3] ? ' (акція −' + x[3] + '%)' : ''); }).join('');
+    sums(size, qty).slice(0, 1).map(function (x) { return '\nСума ' + x[0].toLowerCase() + ': ' + money(x[2]) + ' грн' + (x[3] ? ' (акція −' + x[3] + '%)' : ''); }).join('');
 };
 // Instagram has no prefilled text. The embed cannot reach the clipboard, so this step runs in its own tab.
 function igPage() {
@@ -69,7 +69,7 @@ function igPage() {
   var size = q.get('s');
   var text = orderText(size, +q.get('q') || 1);
   w.innerHTML = '<div class="l">Скопіюйте текст замовлення й вставте його в чат Instagram</div>' +
-    '<textarea id="manual" readonly rows="11"></textarea>' +
+    '<textarea id="manual" readonly rows="9"></textarea>' +
     '<button type="button" id="ig" class="b">Скопіювати й відкрити Instagram</button><div id="note"></div>';
   document.getElementById('manual').value = text;
   document.getElementById('ig').onclick = function () {
