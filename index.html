@@ -42,8 +42,9 @@ body.page #w{width:100%;max-width:480px;padding:0}
 #gal{display:grid;gap:8px}
 #pw{height:170px;background:#fff;border-radius:8px;display:grid;place-items:center;overflow:hidden}
 #ph{display:block;height:170px;width:100%;object-fit:contain}
-#ph[hidden],#dot[hidden]{display:none}
-#dot{width:96px;height:96px;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(0,0,0,.15)}
+#ph[hidden],#nop[hidden]{display:none}
+#nop{display:grid;justify-items:center;gap:10px;color:#787774;font-size:13px}
+#dot{width:72px;height:72px;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(0,0,0,.15)}
 .sw{display:flex;flex-wrap:wrap;gap:6px}
 .sw button{width:44px;height:44px;padding:0;border:1px solid var(--line);border-radius:8px;background:#fff;cursor:pointer;overflow:hidden;display:grid;place-items:center}
 .sw button[aria-checked=true]{outline:2px solid var(--btn);outline-offset:1px}
@@ -102,7 +103,7 @@ if (!p) {
   else if (o.length === 1) pick = '<div class="one">' + o[0] + '</div>';
   var ks = p.k || [], col = 0;
   w.innerHTML =
-    (ks.length ? '<div id="gal"><div id="pw"><img id="ph" alt=""><i id="dot"></i></div><div class="f"><span class="l">Колір</span><span id="cn"></span></div>' +
+    (ks.length ? '<div id="gal"><div id="pw"><img id="ph" alt=""><div id="nop"><i id="dot"></i>Фото цього кольору поки немає</div></div><div class="f"><span class="l">Колір</span><span id="cn"></span></div>' +
       '<div class="sw" role="radiogroup" aria-label="Колір">' + ks.map(function (x, i) {
         return '<button type="button" role="radio" data-i="' + i + '" title="' + x[0] + '" aria-label="' + x[0] + '">' +
           (x[2] ? '<img src="img/' + x[1] + '.webp" alt="">' : '<i style="background:' + x[3] + '"></i>') + '</button>';
@@ -128,7 +129,7 @@ if (!p) {
     if (ks.length) {
       var ph = document.getElementById('ph');
       var dot = document.getElementById('dot');
-      ph.hidden = !ks[col][2]; dot.hidden = !!ks[col][2]; dot.style.background = ks[col][3];
+      ph.hidden = !ks[col][2]; document.getElementById('nop').hidden = !!ks[col][2]; dot.style.background = ks[col][3];
       if (ks[col][2]) { ph.src = 'img/' + ks[col][1] + '.webp'; ph.alt = ks[col][0]; }
       document.getElementById('cn').textContent = ks[col][0];
       [].forEach.call(document.querySelectorAll('.sw button'), function (b) { b.setAttribute('aria-checked', +b.dataset.i === col); });
