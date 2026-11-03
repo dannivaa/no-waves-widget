@@ -47,13 +47,29 @@ body.page #w{width:100%;max-width:480px;padding:0}
 <script>
 var q = new URLSearchParams(location.search);
 var IG = 'https://ig.me/m/no.waves.ua';
+var money = function (x) { return String(x).replace(/\B(?=(\d{3})+$)/g, ' '); };
+var priceOf = function (size) { return p.p && (p.p[size] || p.p['1 шт'] || (size ? null : p.p[Object.keys(p.p)[0]])); };
+// [label, regular total, total to pay, percent or 0] for master and sale prices
+var sums = function (size, qty) {
+  var pr = priceOf(size), out = [];
+  if (pr) [['Для майстра', pr[0], pr[2]], ['Для продажу', pr[1], pr[3]]].forEach(function (x) {
+    if (!x[1]) return;
+    var sale = x[2] && x[2] < x[1];
+    out.push([x[0], x[1] * qty, (sale ? x[2] : x[1]) * qty, sale ? Math.round((1 - x[2] / x[1]) * 100) : 0]);
+  });
+  return out;
+};
+var orderText = function (size, qty) {
+  return 'Хочу замовити: ' + p.n + '\nАртикул: ' + p.a + '\n' + (size ? (p.l || 'Обʼєм') + ': ' + size + '\n' : '') + 'Кількість: ' + qty +
+    sums(size, qty).map(function (x) { return '\nСума ' + x[0].toLowerCase() + ': ' + money(x[2]) + ' грн' + (x[3] ? ' (акція −' + x[3] + '%)' : ''); }).join('');
+};
 // Instagram has no prefilled text. The embed cannot reach the clipboard, so this step runs in its own tab.
 function igPage() {
   document.body.className = 'page';
   var size = q.get('s');
-  var text = 'Хочу замовити: ' + p.n + '\nАртикул: ' + p.a + '\n' + (size ? (p.l || 'Обʼєм') + ': ' + size + '\n' : '') + 'Кількість: ' + q.get('q');
+  var text = orderText(size, +q.get('q') || 1);
   w.innerHTML = '<div class="l">Скопіюйте текст замовлення й вставте його в чат Instagram</div>' +
-    '<textarea id="manual" readonly rows="7"></textarea>' +
+    '<textarea id="manual" readonly rows="11"></textarea>' +
     '<button type="button" id="ig" class="b">Скопіювати й відкрити Instagram</button><div id="note"></div>';
   document.getElementById('manual').value = text;
   document.getElementById('ig').onclick = function () {
@@ -82,20 +98,16 @@ if (!p) {
     '<a id="go" class="b" target="_blank" rel="noopener">Замовити в Telegram</a>' +
     '<a id="ig" class="b" target="_blank" rel="noopener" >Замовити в Instagram</a>';
   var qty = 1, text = '', v = document.getElementById('v'), failed = false;
-  var money = function (x) { return String(x).replace(/\B(?=(\d{3})+$)/g, ' '); };
-  var line = function (label, price, promo) {
-    if (!price) return '';
-    var sale = promo && promo < price, total = (sale ? promo : price) * qty;
-    return '<div class="s"><span class="l">' + label + '</span>' +
-      (sale ? '<s>' + money(price * qty) + '</s>' : '') + '<b>' + money(total) + ' грн</b>' +
-      (sale ? '<i>−' + Math.round((1 - promo / price) * 100) + '%</i>' : '') + '</div>';
+  var line = function (x) {
+    return '<div class="s"><span class="l">' + x[0] + '</span>' +
+      (x[3] ? '<s>' + money(x[1]) + '</s>' : '') + '<b>' + money(x[2]) + ' грн</b>' +
+      (x[3] ? '<i>−' + x[3] + '%</i>' : '') + '</div>';
   };
   var render = function () {
     var size = v ? v.value : o[0];
     document.getElementById('c').textContent = qty;
-    text = 'Хочу замовити: ' + p.n + '\nАртикул: ' + p.a + '\n' + (size ? name + ': ' + size + '\n' : '') + 'Кількість: ' + qty;
-    var pr = p.p && (p.p[size] || p.p['1 шт'] || (size ? null : p.p[Object.keys(p.p)[0]]));
-    document.getElementById('sum').innerHTML = pr ? line('Для майстра', pr[0], pr[2]) + line('Для продажу', pr[1], pr[3]) : '';
+    text = orderText(size, qty);
+    document.getElementById('sum').innerHTML = sums(size, qty).map(line).join('');
     document.getElementById('go').href = 'https://t.me/no_waves_ua?text=' + encodeURIComponent(text);
     document.getElementById('ig').href = '?p=' + q.get('p') + '&ig=1&s=' + encodeURIComponent(size || '') + '&q=' + qty;
   };
