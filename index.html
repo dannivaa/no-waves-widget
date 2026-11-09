@@ -31,6 +31,7 @@ select{width:100%;border-radius:8px;padding:0 8px}
 .s s{color:var(--muted);font-size:13px}
 .s b{font-weight:600}
 .s i{font-style:normal;font-weight:600;color:#c13584}
+.bf{font-size:12px;font-weight:600;letter-spacing:.02em;color:#c13584}
 #err{color:var(--muted)}
 #note{font-size:13px;color:var(--muted)}
 /* Notion paints #191919 behind embeds; cards open in a #202020 popup, so match the popup */
@@ -60,7 +61,14 @@ body.page #w{width:100%;max-width:480px;padding:0}
 var q = new URLSearchParams(location.search);
 var IG = 'https://ig.me/m/no.waves.ua';
 var money = function (x) { return String(x).replace(/\B(?=(\d{3})+$)/g, ' '); };
-var priceOf = function (size) { return p.p && (p.p[size] || p.p['1 шт'] || (size ? null : p.p[Object.keys(p.p)[0]])); };
+// Black Friday: 12.11 00:00 – 30.11 23:59 Kyiv (UTC+2). p.b = {size: [master, sale]} replaces the November promo in that window.
+var BF = Date.now() >= Date.UTC(2026, 10, 11, 22) && Date.now() < Date.UTC(2026, 10, 30, 22);
+var key = function (o, size) { return o && (o[size] ? size : o['1 шт'] ? '1 шт' : size ? null : Object.keys(o)[0]); };
+var isBF = function (size) { var k = key(p.p, size); return !!(BF && p.b && k && p.b[k]); };
+var priceOf = function (size) {
+  var k = key(p.p, size); if (!k) return null;
+  var x = p.p[k]; return isBF(size) ? [x[0], x[1], p.b[k][0], p.b[k][1]] : x;
+};
 // [label, regular total, total to pay, percent or 0] for master and sale prices
 var sums = function (size, qty) {
   var pr = priceOf(size), out = [];
@@ -75,7 +83,7 @@ var sums = function (size, qty) {
 var orderText = function (size, qty, colour) {
   return 'Хочу замовити: ' + p.n + '\nАртикул: ' + (colour ? colour[1] : p.a) + '\n' + (colour ? 'Колір: ' + colour[0].toLowerCase() + '\n' : '') +
     (size ? (p.l || 'Обʼєм') + ': ' + size + '\n' : '') + 'Кількість: ' + qty +
-    sums(size, qty).slice(0, 1).map(function (x) { return '\nСума ' + x[0].toLowerCase() + ': ' + money(x[2]) + ' грн' + (x[3] ? ' (акція −' + x[3] + '%)' : ''); }).join('');
+    sums(size, qty).slice(0, 1).map(function (x) { return '\nСума ' + x[0].toLowerCase() + ': ' + money(x[2]) + ' грн' + (x[3] ? ' (' + (isBF(size) ? 'Чорна пʼятниця' : 'акція') + ' −' + x[3] + '%)' : ''); }).join('');
 };
 // Instagram has no prefilled text. The embed cannot reach the clipboard, so this step runs in its own tab.
 function igPage() {
@@ -135,7 +143,7 @@ if (!p) {
       [].forEach.call(document.querySelectorAll('.sw button'), function (b) { b.setAttribute('aria-checked', +b.dataset.i === col); });
     }
     text = orderText(size, qty, ks[col]);
-    document.getElementById('sum').innerHTML = sums(size, qty).map(line).join('');
+    document.getElementById('sum').innerHTML = (isBF(size) ? '<div class="bf">Чорна пʼятниця · до 30 листопада</div>' : '') + sums(size, qty).map(line).join('');
     document.getElementById('go').href = 'https://t.me/no_waves_ua?text=' + encodeURIComponent(text);
     document.getElementById('ig').href = '?p=' + q.get('p') + '&ig=1&s=' + encodeURIComponent(size || '') + '&q=' + qty + (ks.length ? '&k=' + col : '');
   };
