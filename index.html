@@ -61,8 +61,8 @@ body.page #w{width:100%;max-width:480px;padding:0}
 var q = new URLSearchParams(location.search);
 var IG = 'https://ig.me/m/no.waves.ua';
 var money = function (x) { return String(x).replace(/\B(?=(\d{3})+$)/g, ' '); };
-// Black Friday: 12.11 00:00 – 30.11 23:59 Kyiv (UTC+2). p.b = {size: [master, sale]} replaces the November promo in that window.
-var BF = Date.now() >= Date.UTC(2026, 10, 11, 22) && Date.now() < Date.UTC(2026, 10, 30, 22);
+// Black Friday: 11.11 evening – 30.11 23:59 Kyiv (UTC+2). p.b = {size: [master, sale]} replaces the November promo in that window.
+var BF = Date.now() >= Date.UTC(2026, 10, 11, 19) && Date.now() < Date.UTC(2026, 10, 30, 22);   // started early: 11.11 21:00 Kyiv (Danik)
 // From 1.12 00:00 Kyiv no promo prices at all (Danik, 2026-11-09). Move or remove this date when a new sale is added.
 var SALE_OVER = Date.now() >= Date.UTC(2026, 10, 30, 22);
 var key = function (o, size) { return o && (o[size] ? size : o['1 шт'] ? '1 шт' : size ? null : Object.keys(o)[0]); };
